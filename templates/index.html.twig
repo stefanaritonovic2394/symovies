@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+    Movies Page
+{% endblock %}
+
+{% block body %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Release Year</th>
+            </tr>
+        </thead>
+        {% for movie in movies %}
+        <tbody>
+            <tr>
+                <td>{{ movie.title }}</td>
+                <td>{{ movie.description }}</td>
+                <td>{{ movie.releaseYear }}</td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+
+{% endblock %}
