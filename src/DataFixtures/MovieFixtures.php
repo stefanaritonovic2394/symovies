@@ -11,7 +11,7 @@ class MovieFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $currentDate= new DateTime();
+        $currentDate = new DateTime();
 
         $movie = new Movie();
         $movie->setTitle('Avengers: Endgame');
@@ -39,6 +39,19 @@ class MovieFixtures extends Fixture
         $movie2->addActor($this->getReference('actor_3'));
 
         $manager->persist($movie2);
+
+        $movie3 = new Movie();
+        $movie3->setTitle('The Incredible Hulk');
+        $movie3->setDescription('Bruce Banner, a scientist on the run from the U.S. Government, must find a cure for the monster he turns into whenever he loses his temper.');
+        $movie3->setReleaseYear(2008);
+        $movie3->setCreatedAt($currentDate);
+        $movie3->setImagePath('https://pixabay.com/illustrations/hulk-marvel-superhero-3d-hero-8161704/');
+
+        $movie3->addActor($this->getReference('actor_7'));
+        $movie3->addActor($this->getReference('actor_8'));
+        $movie3->addActor($this->getReference('actor_9'));
+
+        $manager->persist($movie3);
 
         $manager->flush();
     }

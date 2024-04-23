@@ -19,7 +19,10 @@ class ActorFixtures extends Fixture
             'Heath Ledger',
             'Chris Evans',
             'Robert Downey Jr.',
-            'Scarlett Johansson'
+            'Scarlett Johansson',
+            'Edward Norton',
+            'Liv Tyler',
+            'Tim Roth'
         ];
 
         foreach ($actorsData as $index => $name) {
