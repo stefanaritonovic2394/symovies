@@ -17,15 +17,20 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class MoviesController extends AbstractController
 {
+    /**
+     * @var EntityManagerInterface
+     */
     private EntityManagerInterface $em;
-    private MovieRepository $movieRepository;
-    private Filesystem $filesystem;
 
-    public function __construct(EntityManagerInterface $em, MovieRepository $movieRepository, Filesystem $filesystem)
+    /**
+     * @var MovieRepository
+     */
+    private MovieRepository $movieRepository;
+
+    public function __construct(EntityManagerInterface $em, MovieRepository $movieRepository)
     {
         $this->em = $em;
         $this->movieRepository = $movieRepository;
-        $this->filesystem = $filesystem;
     }
 
     #[Route('/movies', name: 'movies', methods: ['GET'])]
@@ -89,7 +94,7 @@ class MoviesController extends AbstractController
     }
 
     #[Route('/movies/edit/{id}', name: 'edit_movie')]
-    public function edit(int $id, Request $request): Response
+    public function edit(int $id, Request $request, Filesystem $filesystem): Response
     {
         $movie = $this->movieRepository->find($id);
         $form = $this->createForm(MovieFormType::class, $movie);
@@ -107,8 +112,8 @@ class MoviesController extends AbstractController
                         $currentImagePath = $this->getParameter('kernel.project_dir') . '/public' . $movie->getImagePath();
 
                         // Check if the image already exists and delete it
-                        if ($this->filesystem->exists($currentImagePath)) {
-                            $this->filesystem->remove($currentImagePath);
+                        if ($filesystem->exists($currentImagePath)) {
+                            $filesystem->remove($currentImagePath);
                         }
 
                         $this->getParameter('kernel.project_dir') . $movie->getImagePath();
@@ -147,7 +152,7 @@ class MoviesController extends AbstractController
     }
 
     #[Route('/movies/delete/{id}', name: 'delete_movie', methods: ['GET', 'DELETE'])]
-    public function delete(int $id): Response
+    public function delete(int $id, Filesystem $filesystem): Response
     {
         $movie = $this->movieRepository->find($id);
 
@@ -158,8 +163,8 @@ class MoviesController extends AbstractController
                 $absoluteImagePath = $this->getParameter('kernel.project_dir') . '/public' . $imagePath;
 
                 // Check if the image already exists and delete it
-                if ($this->filesystem->exists($absoluteImagePath)) {
-                    $this->filesystem->remove($absoluteImagePath);
+                if ($filesystem->exists($absoluteImagePath)) {
+                    $filesystem->remove($absoluteImagePath);
                 }
             }
         }
@@ -168,5 +173,16 @@ class MoviesController extends AbstractController
         $this->em->flush();
 
         return $this->redirectToRoute('movies');
+    }
+
+    #[Route('/search', name: 'search_movie', methods: ['GET'])]
+    public function search(Request $request): Response
+    {
+        $title = $request->query->get('query');
+        $moviesByTitle = $this->movieRepository->findByTitleField($title);
+
+        return $this->render('movies/search.html.twig', [
+            'movies' => $moviesByTitle
+        ]);
     }
 }

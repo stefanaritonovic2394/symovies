@@ -1,11 +1,32 @@
 {% extends "base.html.twig" %}
 
-{% block title %} Actors page {% endblock %}
+{% block title %}Actors{% endblock %}
 
 {% block body %}
-    {% for actor in actors %}
-        <ul>
-            <li>{{ actor.name }}</li>
-        </ul>
-    {% endfor %}
+    <div class="w-4/5 m-auto text-center">
+        <div class="py-16 border-b border-gray-200">
+            <h1 class="text-6xl pt-12 pb-8">
+                Actors
+            </h1>
+
+            <span class="font-light text-gray-500 italic">
+                Logged in as {{ app.user ? app.user.email : 'guest' }}
+            </span>
+        </div>
+    </div>
+
+    <div class="md:grid lg:grid-cols-3 gap-20 w-4/5 mx-auto py-15 ">
+        <!-- Review Item -->
+        {% for actor in actors %}
+            <div class="text-center pt-8 pb-4">
+                <h2 class="text-white font-bold text-3xl py-2 pb-10">
+                    {{ actor.name }}
+                </h2>
+
+                <a href="/actors/{{ actor.id }}" class="uppercase border border-gray-500 text-gray-600 text-lg py-4 px-12 rounded transition hover:bg-gray-800 hover:text-white">
+                    More
+                </a>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

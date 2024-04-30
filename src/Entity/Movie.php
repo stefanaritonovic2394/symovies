@@ -31,7 +31,7 @@ class Movie
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+//    #[Assert\NotBlank]
     private ?string $imagePath = null;
 
     #[ORM\ManyToMany(targetEntity: Actor::class, inversedBy: 'movies')]
