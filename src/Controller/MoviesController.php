@@ -87,9 +87,11 @@ class MoviesController extends AbstractController
     public function show(int $id): Response
     {
         $movie = $this->movieRepository->find($id);
+        $actors = $movie->getActors();
 
         return $this->render('movies/show.html.twig', [
-            'movie' => $movie
+            'movie' => $movie,
+            'actors' => $actors
         ]);
     }
 

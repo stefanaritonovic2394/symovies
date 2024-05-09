@@ -5,48 +5,68 @@
 {% endblock %}
 
 {% block body %}
-    <div class="w-4/5 m-auto text-center">
-        <div class="py-16 border-b border-gray-200">
-            <h1 class="text-6xl pt-12 pb-8">
-                Movies Review ({{ movies|length }})
-            </h1>
+    <div class="container mx-auto px-4 pt-20">
 
+        {% if app.user %}
+            <div class="mx-auto my-8">
+                <a href="/movies/create" class="uppercase border border-gray-500 text-lg py-4 px-6 rounded transition bg-gray-800 text-white hover:bg-white hover:text-gray-800">
+                    Create New movie
+                </a>
+            </div>
             <span class="font-light text-gray-500 italic">
                 Logged in as {{ app.user ? app.user.email : 'guest' }}
             </span>
-        </div>
-    </div>
+        {% endif %}
 
-    {% if app.user %}
-        <div class="mx-auto w-4/5 my-8">
-            <a href="/movies/create" class="uppercase border border-gray-500 text-lg py-4 px-6 rounded transition bg-gray-800 text-white hover:bg-white hover:text-gray-800">
-                Create New movie
-            </a>
-        </div>
-    {% endif %}
-
-    <div class="md:grid lg:grid-cols-3 gap-20 w-4/5 mx-auto py-15 ">
-        <!-- Review Item -->
-        {% for movie in movies %}
-            <div class="text-center pt-8 pb-4">
-                <img src="{{ movie.imagePath }}" alt="" class="shadow-xl rounded-md"/>
-
-                <h2 class="text-white font-bold text-3xl py-2">
-                    {{ movie.title }}
-                </h2>
-
-                <span class="text-gray-500">
-                    By <span class="italic text-sm text-white">{{ app.user ? app.user.email : 'guest' }} | {{ movie.createdAt|date('Y-m-d') }} </span>
-                </span>
-
-                <p class="text-base text-gray-400 pt-4 pb-10 leading-8 font-light">
-                    {{ movie.description }}
-                </p>
-
-                <a href="/movies/{{ movie.id }}" class="uppercase border border-gray-500 text-gray-600 text-lg py-4 px-12 rounded transition transition-all hover:bg-gray-800 hover:text-white">
-                    More
-                </a>
+        <div class="popular-movies pt-10">
+            <h2 class="uppercase tracking-wider text-orange-500 text-lg font-semibold">Popular Movies</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {% for movie in movies %}
+                    <div class="mt-8">
+                        <a href="/movies/{{ movie.id }}">
+                            <img src="{{ movie.imagePath }}" alt="{{ movie.title }}" class="hover:opacity-75 transition ease-in-out duration-150">
+                        </a>
+                        <div class="mt-2">
+                            <a href="/movies/{{ movie.id }}" class="text-lg mt-2 hover:text-gray:300">{{ movie.title }}</a>
+                            <div class="flex items-center text-gray-400 text-sm mt-1">
+                                <svg class="fill-current text-orange-500 w-4" viewBox="0 0 24 24"><g data-name="Layer 2"><path d="M17.56 21a1 1 0 01-.46-.11L12 18.22l-5.1 2.67a1 1 0 01-1.45-1.06l1-5.63-4.12-4a1 1 0 01-.25-1 1 1 0 01.81-.68l5.7-.83 2.51-5.13a1 1 0 011.8 0l2.54 5.12 5.7.83a1 1 0 01.81.68 1 1 0 01-.25 1l-4.12 4 1 5.63a1 1 0 01-.4 1 1 1 0 01-.62.18z" data-name="star"/></g></svg>
+                                <span class="ml-1">85%</span>
+                                <span class="mx-2">|</span>
+                                <span>{{ movie.releaseYear }}</span>
+                            </div>
+                            <div class="text-gray-400 text-sm">
+                                Action, Thriller, Comedy
+{#                                {{ movie.genre }}#}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div> <!-- end popular-movies -->
+
+        <div class="now-playing-movies py-24">
+            <h2 class="uppercase tracking-wider text-orange-500 text-lg font-semibold">Now Playing</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {% for movie in movies %}
+                    <div class="mt-8">
+                        <a href="/movies/{{ movie.id }}">
+                            <img src="{{ movie.imagePath }}" alt="{{ movie.title }}" class="hover:opacity-75 transition ease-in-out duration-150">
+                        </a>
+                        <div class="mt-2">
+                            <a href="/movies/{{ movie.id }}" class="text-lg mt-2 hover:text-gray:300">{{ movie.title }}</a>
+                            <div class="flex items-center text-gray-400 text-sm mt-1">
+                                <svg class="fill-current text-orange-500 w-4" viewBox="0 0 24 24"><g data-name="Layer 2"><path d="M17.56 21a1 1 0 01-.46-.11L12 18.22l-5.1 2.67a1 1 0 01-1.45-1.06l1-5.63-4.12-4a1 1 0 01-.25-1 1 1 0 01.81-.68l5.7-.83 2.51-5.13a1 1 0 011.8 0l2.54 5.12 5.7.83a1 1 0 01.81.68 1 1 0 01-.25 1l-4.12 4 1 5.63a1 1 0 01-.4 1 1 1 0 01-.62.18z" data-name="star"/></g></svg>
+                                <span class="ml-1">85%</span>
+                                <span class="mx-2">|</span>
+                                <span>{{ movie.releaseYear }}</span>
+                            </div>
+                            <div class="text-gray-400 text-sm">
+                                Action, Thriller, Comedy
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div> <!-- end now-playing-movies -->
     </div>
 {% endblock %}
