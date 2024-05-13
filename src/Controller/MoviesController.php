@@ -6,6 +6,7 @@ use App\Entity\Movie;
 use App\Form\MovieFormType;
 use App\Repository\MovieRepository;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,6 +15,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class MoviesController extends AbstractController
 {
@@ -33,13 +40,47 @@ class MoviesController extends AbstractController
         $this->movieRepository = $movieRepository;
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
     #[Route('/movies', name: 'movies', methods: ['GET'])]
     public function index(): Response
     {
-        $movies = $this->movieRepository->findAll();
+        $httpClient = HttpClient::create();
+
+        $popularMovies = $httpClient->request('GET', 'https://api.themoviedb.org/3/movie/popular', [
+            'query' => [
+                'api_key' => $this->getParameter('tmdb_api_key')
+            ]
+        ])->toArray()['results'];
+
+        $nowPlayingMovies = $httpClient->request('GET', 'https://api.themoviedb.org/3/movie/now_playing', [
+            'query' => [
+                'api_key' => $this->getParameter('tmdb_api_key')
+            ]
+        ])->toArray()['results'];
+
+        $genresArray =  $httpClient->request('GET', 'https://api.themoviedb.org/3/genre/movie/list', [
+            'query' => [
+                'api_key' => $this->getParameter('tmdb_api_key')
+            ]
+        ])->toArray()['genres'];
+
+        $genres = array_reduce($genresArray, function ($result, $genre) {
+            $result[$genre['id']] = $genre['name'];
+            return $result;
+        }, []);
+
+//        $genres = array_column($genresArray, 'name', 'id');
 
         return $this->render('movies/index.html.twig', [
-            'movies' => $movies
+            'popularMovies' => $popularMovies,
+            'nowPlayingMovies' => $nowPlayingMovies,
+            'genres' => $genres
         ]);
     }
 
@@ -86,12 +127,16 @@ class MoviesController extends AbstractController
     #[Route('/movies/{id}', name: 'show_movie', methods: ['GET'])]
     public function show(int $id): Response
     {
-        $movie = $this->movieRepository->find($id);
-        $actors = $movie->getActors();
+        $httpClient = HttpClient::create();
+
+        $movie = $httpClient->request('GET', 'https://api.themoviedb.org/3/movie/' . $id . '?append_to_response=credits,videos,images', [
+            'query' => [
+                'api_key' => $this->getParameter('tmdb_api_key')
+            ]
+        ])->toArray();
 
         return $this->render('movies/show.html.twig', [
             'movie' => $movie,
-            'actors' => $actors
         ]);
     }
 
