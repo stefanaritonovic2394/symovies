@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -36,6 +37,34 @@ class MoviesController extends AbstractController
     {
         $this->em = $em;
         $this->movieRepository = $movieRepository;
+    }
+
+    #[Route('/movies/popular/{page}', name: 'movies_popular', methods: ['GET'])]
+    public function getPopularMovies(int $page = 1): JsonResponse
+    {
+        $httpClient = HttpClient::create();
+
+        $popularMovies = $httpClient->request('GET', 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=' . $page, [
+            'query' => [
+                'api_key' => $this->getParameter('tmdb_api_key')
+            ]
+        ])->toArray();
+
+        return $this->json($popularMovies);
+    }
+
+    #[Route('/movies/now_playing/{page}', name: 'movies_now_playing', methods: ['GET'])]
+    public function getNowPlayingMovies(int $page = 1): JsonResponse
+    {
+        $httpClient = HttpClient::create();
+
+        $nowPlayingMovies = $httpClient->request('GET', 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=' . $page , [
+            'query' => [
+                'api_key' => $this->getParameter('tmdb_api_key')
+            ]
+        ])->toArray();
+
+        return $this->json($nowPlayingMovies);
     }
 
     /**

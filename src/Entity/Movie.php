@@ -5,33 +5,55 @@ namespace App\Entity;
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => 'movie:item']),
+        new GetCollection(normalizationContext: ['groups' => 'movie:list'])
+    ],
+    order: ['releaseYear' => 'DESC'],
+    paginationEnabled: false,
+)]
 class Movie
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[ApiProperty(identifier: true)]
+    #[Groups(['movie:list', 'movie:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 3)]
+    #[ApiProperty]
+    #[Groups(['movie:list', 'movie:item'])]
     private ?string $title = null;
 
     #[ORM\Column]
     #[Assert\NotBlank]
+    #[ApiProperty]
+    #[Groups(['movie:list', 'movie:item'])]
     private ?int $releaseYear = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\NotBlank]
+    #[ApiProperty]
+    #[Groups(['movie:list', 'movie:item'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
 //    #[Assert\NotBlank]
+    #[ApiProperty]
+    #[Groups(['movie:list', 'movie:item'])]
     private ?string $imagePath = null;
 
     #[ORM\ManyToMany(targetEntity: Actor::class, inversedBy: 'movies')]
