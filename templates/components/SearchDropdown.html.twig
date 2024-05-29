@@ -1,0 +1,44 @@
+<div{{ attributes }} data-controller="live" data-live-name="search_dropdown">
+    <div class="relative mt-3 md:mt-0">
+        <div class="flex items-center">
+            <input type="search" name="query" data-model="debounce(500)|query" class="bg-gray-800 text-sm rounded-full w-64 px-4 pl-8 py-1 focus:outline-none focus:shadow-outline" placeholder="Search">
+            <div class="absolute top-0 right-0 mr-4 mt-1">
+                <svg data-loading class="animate-spin h-5 w-5 text-white-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 4.418 3.582 8 8 8v-4c-2.179 0-4.182-.877-5.657-2.293l1.414-1.414zm10.94-2.88A7.963 7.963 0 0120 12h-4c0 2.184-.885 4.174-2.32 5.623l1.414 1.414zM20 12a8 8 0 01-8 8v4c4.418 0 8-3.582 8-8h-4z"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="absolute top-0 left-0">
+            <svg class="fill-current w-4 text-gray-500 mt-2 ml-2" viewBox="0 0 24 24"><path class="heroicon-ui" d="M16.32 14.9l5.39 5.4a1 1 0 01-1.42 1.4l-5.38-5.38a8 8 0 111.41-1.41zM10 16a6 6 0 100-12 6 6 0 000 12z"></path></svg>
+        </div>
+    </div>
+    {% if query|length >= 2 %}
+        <div class="absolute bg-gray-800 text-sm rounded w-64 mt-4">
+            {% if searchResults|length > 0 %}
+                <ul>
+                    {% for result in searchResults %}
+                        <li class="border-b border-gray-700">
+                            <a href="{{ path('show_movie', {'id': result['id']}) }}" class="block hover:bg-gray-700 px-3 py-3 flex items-center transition ease-in-out duration-150">
+                                {% if result['poster_path'] %}
+                                    <img src="https://image.tmdb.org/t/p/w92/{{ result['poster_path'] }}" alt="poster" class="w-8">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/50x75" alt="poster" class="w-8">
+                                {% endif %}
+                                <span class="ml-4">{{ result['title'] }}</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="border-b border-gray-700">
+                            <a href="#" class="block hover:bg-gray-700 px-3 py-3 flex items-center transition ease-in-out duration-150">
+                                No results found
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="px-3 py-3">No results for "{{ this.query }}"</div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

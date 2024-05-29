@@ -3,9 +3,17 @@
 namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Twig\Components\SearchDropdown;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 class ViewMoviesTest extends ApiTestCase
 {
@@ -70,26 +78,50 @@ class ViewMoviesTest extends ApiTestCase
     }
 
     /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function test_the_search_dropdown_works(): void
+    {
+        $response = new MockResponse(json_encode($this->getFakeSearchMovies()), ['http_code' => 200]);
+        $httpClient = new MockHttpClient($response);
+
+        $component = new SearchDropdown($httpClient);
+
+        // Step 2: Simulate the Live Component interaction
+        $component->query = 'jumanji';
+        $results = $component->getSearchResults();
+
+        $this->assertCount(7, $results, 'There should be 7 results');
+        $this->assertSame('Jumanji', $results['original_title']);
+    }
+
+    /**
      * @return array[]
      */
     public function getFakePopularMoviesData(): array
     {
         return [
             'results' => [
-                "adult" => false,
-                "backdrop_path" => "/qrGtVFxaD8c7et0jUtaYhyTzzPg.jpg",
-                "genre_ids" => [878, 28, 12],
-                "id" => 823464,
-                "original_language" => "en",
-                "original_title" => "Fake Popular Movie",
-                "overview" => "Fake popular movie desc. Following their explosive showdown, Godzilla and Kong must reunite against a colossal undiscovered threat hidden within our world, challenging their very existence – and our own.",
-                "popularity" => 8350.714,
-                "poster_path" => "/z1p34vh7dEOnLDmyCrlUVLuoDzd.jpg",
-                "release_date" => "2024-03-27",
-                "title" => "Fake Popular Movie",
-                "video" => false,
-                "vote_average" => 7.123,
-                "vote_count" => 1609,
+                [
+                    "adult" => false,
+                    "backdrop_path" => "/qrGtVFxaD8c7et0jUtaYhyTzzPg.jpg",
+                    "genre_ids" => [878, 28, 12],
+                    "id" => 823464,
+                    "original_language" => "en",
+                    "original_title" => "Fake Popular Movie",
+                    "overview" => "Fake popular movie desc. Following their explosive showdown, Godzilla and Kong must reunite against a colossal undiscovered threat hidden within our world, challenging their very existence – and our own.",
+                    "popularity" => 8350.714,
+                    "poster_path" => "/z1p34vh7dEOnLDmyCrlUVLuoDzd.jpg",
+                    "release_date" => "2024-03-27",
+                    "title" => "Fake Popular Movie",
+                    "video" => false,
+                    "vote_average" => 7.123,
+                    "vote_count" => 1609
+                ]
             ]
         ];
     }
@@ -237,22 +269,22 @@ class ViewMoviesTest extends ApiTestCase
             "poster_path" => "/gKkl37BQuKTanygYQG1pyYgLVgf.jpg",
             "production_companies" => [
                 [
-                  "id" => 127928,
-                  "logo_path" => "/h0rjX5vjW5r8yEnUBStFarjcLT4.png",
-                  "name" => "20th Century Studios",
-                  "origin_country" => "US",
+                    "id" => 127928,
+                    "logo_path" => "/h0rjX5vjW5r8yEnUBStFarjcLT4.png",
+                    "name" => "20th Century Studios",
+                    "origin_country" => "US",
                 ],
                 [
-                  "id" => 133024,
-                  "logo_path" => null,
-                  "name" => "Oddball Entertainment",
-                  "origin_country" => "US"
+                    "id" => 133024,
+                    "logo_path" => null,
+                    "name" => "Oddball Entertainment",
+                    "origin_country" => "US"
                 ],
                 [
-                  "id" => 89254,
-                  "logo_path" => null,
-                  "name" => "Jason T. Reed Productions",
-                  "origin_country" => "US"
+                    "id" => 89254,
+                    "logo_path" => null,
+                    "name" => "Jason T. Reed Productions",
+                    "origin_country" => "US"
                 ]
             ],
             "production_countries" => [
@@ -352,6 +384,31 @@ class ViewMoviesTest extends ApiTestCase
                         "width" => 2000
                     ]
                 ]
+            ]
+        ];
+    }
+
+    /**
+     * @return array[]
+     */
+    private function getFakeSearchMovies(): array
+    {
+        return [
+            'results' => [
+                "adult" => false,
+                "backdrop_path" => "/i7jKGJZjGmLZFt48xLtwSgn9Cdw.jpg",
+                "genre_ids" => [12, 14, 10751],
+                "id" => 8844,
+                "original_language" => "en",
+                "original_title" => "Jumanji",
+                "overview" => "When siblings Judy and Peter discover an enchanted board game that opens the door to a magical world, they unwittingly invite Alan -- an adult who's been trapped inside the game for 26 years -- into their living room. Alan's only hope for freedom is to finish the game, which proves risky as all three find themselves running from giant rhinoceroses, evil monkeys and other terrifying creatures.",
+                "popularity" => 24.314,
+                "poster_path" => "/vgpXmVaVyUL7GGiDeiK1mKEKzcX.jpg",
+                "release_date" => "1995-12-15",
+                "title" => "Jumanji",
+                "video" => false,
+                "vote_average" => 7.24,
+                "vote_count" => 10229
             ]
         ];
     }
